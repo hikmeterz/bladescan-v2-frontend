@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>BladeScan V2 — GÜRİŞ Technology</title>
+  <link rel="stylesheet" href="./src/styles.css">
+  <script type="module" src="./src/tablet.js"></script>
+</head>
+<body>
+<div class="console" id="console">
+  <header class="topbar">
+    <div class="brand">
+      <strong>GÜRİŞ <span>TECHNOLOGY</span></strong>
+      <span class="product">BladeScan <b>V2</b></span>
+    </div>
+    <div class="header-actions">
+      <span class="badge" id="backend-status">Backend disconnected</span>
+      <button class="button" id="fullscreen-button" type="button"
+              aria-pressed="false">Fullscreen</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="vision-column" aria-labelledby="camera-title">
+      <div class="camera-panel">
+        <div class="camera-heading">
+          <div>
+            <span class="eyebrow">LIVE VIEW</span>
+            <h1 id="camera-title">Insta360</h1>
+          </div>
+          <span class="camera-badge" id="camera-status">Camera disconnected</span>
+        </div>
+
+        <div class="camera-viewport" id="camera-viewport">
+          <img id="camera-feed" alt="Insta360 live preview" hidden>
+          <div class="empty-state" id="camera-empty">
+            <span class="empty-icon" aria-hidden="true">◎</span>
+            <h2>Waiting for video</h2>
+            <p>Live preview will appear here when an inspection starts.</p>
+          </div>
+        </div>
+
+        <div class="camera-footer">
+          <span id="stream-status">Stream disconnected</span>
+          <span>Aspect ratio preserved</span>
+        </div>
+      </div>
+
+      <div class="metrics" aria-label="Robot measurements">
+        <div class="metric">
+          <span id="distance-label">Inspection distance</span>
+          <strong><span id="distance-value">—</span> <small>m</small></strong>
+        </div>
+        <div class="metric">
+          <span>Forward speed</span>
+          <strong><span id="linear-speed">—</span> <small>m/s</small></strong>
+        </div>
+        <div class="metric">
+          <span>Angular speed</span>
+          <strong><span id="angular-speed">—</span> <small>rad/s</small></strong>
+        </div>
+      </div>
+    </section>
+
+    <aside class="control-rail" aria-label="Inspection and driving">
+      <section class="panel inspection-panel">
+        <div class="section-heading">
+          <h2>Inspection</h2>
+          <span class="badge" id="inspection-state">Disconnected</span>
+        </div>
+
+        <p class="inspection-summary" id="inspection-summary">
+          Details have not been entered.
+        </p>
+
+        <button class="button edit-button" id="details-button" type="button"
+                aria-haspopup="dialog" aria-controls="inspection-dialog">
+          Inspection details
+        </button>
+
+        <button class="button primary" id="start-button" type="button" disabled>
+          Start inspection
+        </button>
+
+        <div class="button-row">
+          <button class="button" id="finish-button" type="button" disabled>Finish</button>
+          <button class="button danger" id="cancel-button" type="button" disabled>Cancel</button>
+        </div>
+
+        <p class="hint" id="inspection-message" role="status">
+          Inspection connection is not active yet.
+        </p>
+      </section>
+
+      <section class="panel drive-panel" aria-labelledby="teleop-title">
+        <div class="section-heading">
+          <h2 id="teleop-title">Manual driving</h2>
+          <span class="badge">Inactive</span>
+        </div>
+
+        <div class="teleop-pad" aria-label="Drive controls">
+          <button class="drive-button forward" type="button" disabled>
+            <span aria-hidden="true">↑</span><small>Forward</small>
+          </button>
+          <button class="drive-button left" type="button" disabled>
+            <span aria-hidden="true">←</span><small>Left</small>
+          </button>
+          <button class="drive-button stop" type="button" disabled>
+            <span aria-hidden="true">■</span><small>Stop</small>
+          </button>
+          <button class="drive-button right" type="button" disabled>
+            <span aria-hidden="true">→</span><small>Right</small>
+          </button>
+          <button class="drive-button backward" type="button" disabled>
+            <span aria-hidden="true">↓</span><small>Reverse</small>
+          </button>
+        </div>
+
+        <p class="hint">Drive control is disconnected. Buttons will not send commands.</p>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span>Status monitoring</span>
+    <span id="ui-message" role="status">Camera and drive connections are not active yet.</span>
+  </footer>
+
+  <dialog id="inspection-dialog" aria-labelledby="dialog-title">
+    <form id="inspection-form">
+      <div class="dialog-heading">
+        <div>
+          <span class="eyebrow">INSPECTION</span>
+          <h2 id="dialog-title">Inspection details</h2>
+        </div>
+        <button class="icon-button" id="dialog-close" type="button"
+                aria-label="Close dialog">×</button>
+      </div>
+
+      <p class="dialog-description">Enter the inspection location and operator.</p>
+
+      <div class="form-grid">
+        <label class="full-width">Plant
+          <input name="plant" maxlength="100" placeholder="Plant name" required>
+        </label>
+        <label>Turbine
+          <input name="turbine" maxlength="100" placeholder="WT01" required>
+        </label>
+        <label>Blade
+          <input name="blade" maxlength="100" placeholder="A" required>
+        </label>
+        <label>Section
+          <input name="section" maxlength="100" placeholder="1" required>
+        </label>
+        <label>Operator
+          <input name="operator_name" maxlength="100" placeholder="Operator name" required>
+        </label>
+      </div>
+
+      <p class="hint">Details are kept while this page is open; this does not start an inspection.</p>
+
+      <div class="dialog-actions">
+        <button class="button" id="dialog-cancel" type="button">Cancel</button>
+        <button class="button primary" type="submit">Apply details</button>
+      </div>
+    </form>
+  </dialog>
+</div>
+</body>
+</html>
