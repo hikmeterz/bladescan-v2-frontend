@@ -1,5 +1,5 @@
 export function startHardwareStatus(){
-  const definitions=[['motors','Motors'],['thermal','Thermal'],['dslr','DSLR'],['imu','IMU'],['lidar','LiDAR'],['realsense','RealSense'],['insta360','Insta360'],['lidar3d','3D LiDAR']];
+  const definitions=[['motors','Motors'],['thermal','Thermal'],['dslr','DSLR'],['imu','IMU'],['lidar','LiDAR'],['realsense','RealSense'],['insta360','Insta360'],['lidar3d','3D LiDAR'],['leds','LEDs'],['webcam','Webcam']];
   const grid=document.getElementById('hardware-grid'),controls=new Map();
   for(const [id,name] of definitions){
     const row=document.createElement('label');row.className='hardware-node';row.dataset.state='error';

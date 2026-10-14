@@ -63,7 +63,8 @@ export function createView({ session, dialog, preview }) {
     $('photo-button').disabled = !controlReady || s.user.role === 'viewer' || s.photoPending || !!s.photoWaitId
       || !camFresh || camera?.state !== 'recording' || camera?.recording !== true || camera?.photo_busy || s.photoCommandBusy();
     $('photo-button').textContent = s.photoPending || camera?.photo_busy ? 'Taking photo…' : 'Take photo';
-    $('camera-status').textContent = camFresh ? CAMERA_LABELS[camera?.state] || 'Waiting for camera' : 'Camera status unavailable';
+    $('camera-status').textContent = preview.source() === 'webcam' ? 'Connecting to webcam…'
+      : camFresh ? CAMERA_LABELS[camera?.state] || 'Waiting for camera' : 'Camera status unavailable';
     preview.check();
     if (dialog.open) renderInformation();
   }

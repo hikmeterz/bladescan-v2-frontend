@@ -134,3 +134,6 @@ dialog::backdrop{background:#041017a6;backdrop-filter:blur(3px)}
 @media (max-width:860px){:root{--side:1fr}.deck{grid-template-columns:1fr 1fr}.center{grid-column:1/-1;grid-row:1;max-width:none}}
 @media (max-height:640px) and (orientation:landscape){:root{--bar:44px;--stick:108px;--knob:44px;--slider-h:64px}.deck{padding:8px 12px;gap:10px}.block{padding:7px 10px}.side{gap:8px}.action{height:38px}.status-chip,.ghost{height:34px}}
 @media (prefers-reduced-motion:reduce){.rec-dot{animation:none}}
+
+/* USB webcam mounted upside down: turn the live view in the browser (no re-encoding). */
+#camera-feed[data-source="webcam"][data-rotate="180"] { transform: rotate(180deg); }

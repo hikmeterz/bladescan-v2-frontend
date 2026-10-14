@@ -78,13 +78,13 @@ function mountLights(canControl) {
   poll();
 }
 
-// Segmented single-choice control; the choice is remembered in this browser.
+// Segmented single-choice control. With a storage key the choice is remembered in this browser.
 function radioGroup(group, key, onChange) {
   const buttons = [...group.querySelectorAll('button[role="radio"]')];
   const select = (button, store = true) => {
     if (!button || button.disabled) return;
     for (const b of buttons) { const on = b === button; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; }
-    if (store) try { localStorage.setItem(key, button.dataset.value); } catch {}
+    if (store && key) try { localStorage.setItem(key, button.dataset.value); } catch {}
     onChange(button);
   };
   for (const b of buttons) {
@@ -99,9 +99,30 @@ function radioGroup(group, key, onChange) {
     });
   }
   let saved = null;
-  try { saved = localStorage.getItem(key); } catch {}
+  if (key) try { saved = localStorage.getItem(key); } catch {}
   select(buttons.find(b => b.dataset.value === saved && !b.disabled)
     || buttons.find(b => b.getAttribute('aria-checked') === 'true'), false);
+  return {
+    value: () => buttons.find(b => b.getAttribute('aria-checked') === 'true')?.dataset.value,
+    select: value => select(buttons.find(b => b.dataset.value === value)),
+  };
+}
+
+// The Webcam button is enabled while the USB webcam is plugged in. If it is
+// unplugged while selected, the view falls back to the Insta360.
+function watchWebcam(cameras) {
+  const button = $('camera-source').querySelector('[data-camera="webcam"]');
+  async function poll() {
+    try {
+      const { webcam } = await request('/api/webcam/state', { timeoutMs: 2500 });
+      button.disabled = !webcam.available;
+      button.title = webcam.available ? 'USB webcam' : 'Not connected';
+      $('camera-feed').dataset.rotate = String(webcam.rotate || 0);
+    } catch {}
+    if (button.disabled && cameras.value() === 'webcam') cameras.select('insta360');
+    setTimeout(poll, 3000);
+  }
+  poll();
 }
 
 function renderRec(session) {
@@ -124,10 +145,12 @@ function renderRec(session) {
 export function mountControls(session) {
   mountLights(session.user.role !== 'viewer');
 
-  radioGroup($('camera-source'), 'bladescan.cameraSource', b => {
+  // Always start on the Insta360: the webcam is an optional driving view.
+  const cameras = radioGroup($('camera-source'), null, b => {
     $('camera-source-note').textContent = b.textContent.trim();
     session.dispatchEvent(new CustomEvent('camera-source-change', { detail: b.dataset.value }));
   });
+  watchWebcam(cameras);
   radioGroup($('drive-mode'), 'bladescan.driveMode', b => {
     session.dispatchEvent(new CustomEvent('drive-mode-change', { detail: Number(b.dataset.value) }));
   });

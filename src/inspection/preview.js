@@ -1,10 +1,27 @@
 import { $ } from '../lib/dom.js';
 
-// Live camera preview: fetches JPEG frames (~10/s) while the camera reports a
-// ready preview for the current inspection; hides the image when it goes stale.
+// Live view in the main stage. Source 'insta360' shows the inspection camera's
+// preview while it records; source 'webcam' shows the USB webcam. Frames are
+// fetched one at a time (~10/s); the image is hidden when it goes stale.
+const SOURCES = {
+  insta360: {
+    url: session => {
+      const c = session.camera;
+      return session.cameraFresh() && c?.preview_ready ? '/api/camera/frame.jpg?inspection_id=' + encodeURIComponent(c.inspection_id) : null;
+    },
+    valid: (session, url) => session.cameraFresh() && session.camera?.preview_ready && session.camera.state === 'recording'
+      && url.endsWith(encodeURIComponent(session.camera.inspection_id)),
+  },
+  webcam: {
+    url: () => '/api/webcam/frame.jpg',
+    valid: () => true,
+  },
+};
+
 export function createPreview(session) {
   const image = $('camera-feed'), empty = $('camera-empty');
-  let url = null, seen = 0, controller = null, timer = null;
+  let source = 'insta360', url = null, seen = 0, controller = null, timer = null;
+  image.dataset.source = source;
 
   function hide() {
     image.hidden = true;
@@ -15,27 +32,32 @@ export function createPreview(session) {
     seen = 0;
   }
 
-  const allowed = (id, epoch) => session.alive && epoch === session.revision && session.cameraFresh()
-    && session.camera?.inspection_id === id && session.camera.preview_ready && session.camera.state === 'recording';
+  session.addEventListener('camera-source-change', event => {
+    if (!SOURCES[event.detail] || event.detail === source) return;
+    source = event.detail;
+    image.dataset.source = source;
+    controller?.abort();
+    hide();
+  });
 
   async function loop() {
-    const camera = session.camera;
-    const id = session.cameraFresh() && camera?.preview_ready ? camera.inspection_id : null;
-    if (id) {
+    const current = source, frameUrl = SOURCES[current].url(session);
+    const allowed = epoch => session.alive && epoch === session.revision && source === current
+      && SOURCES[current].valid(session, frameUrl);
+    if (frameUrl) {
       const epoch = session.revision;
       controller = new AbortController();
       const abortTimer = setTimeout(() => controller.abort(), 1500);
       try {
-        const response = await fetch('/api/camera/frame.jpg?inspection_id=' + encodeURIComponent(id),
-          { cache: 'no-store', signal: controller.signal });
+        const response = await fetch(frameUrl, { cache: 'no-store', signal: controller.signal });
         if (!response.ok) throw new Error('Could not retrieve the image.');
         const blob = await response.blob();
-        if (allowed(id, epoch)) {
+        if (allowed(epoch)) {
           const next = URL.createObjectURL(blob);
           const decoder = new Image();
           decoder.src = next;
           try { await decoder.decode(); } catch (error) { URL.revokeObjectURL(next); throw error; }
-          if (!allowed(id, epoch)) {
+          if (!allowed(epoch)) {
             URL.revokeObjectURL(next);
           } else {
             const previous = url;
@@ -59,11 +81,13 @@ export function createPreview(session) {
 
   return {
     start: loop,
-    // Called on every render: drop the image when the camera stops or frames stall.
+    source: () => source,
+    // Called on every render: drop the image when its source stops or frames stall.
     check() {
+      const stalled = seen && performance.now() - seen > 2000;
+      if (source === 'webcam') { if (stalled) hide(); return; }
       const c = session.camera;
-      if (!session.cameraFresh() || !c?.preview_ready || c.state !== 'recording'
-          || (seen && performance.now() - seen > 2000)) hide();
+      if (!session.cameraFresh() || !c?.preview_ready || c.state !== 'recording' || stalled) hide();
     },
     stop() { clearTimeout(timer); controller?.abort(); hide(); },
   };

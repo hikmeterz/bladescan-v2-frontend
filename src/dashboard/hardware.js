@@ -4,6 +4,7 @@ import { $, closeOnBackdrop } from '../lib/dom.js';
 const DEVICES = [
   ['motors', 'Motors'], ['thermal', 'Thermal'], ['dslr', 'DSLR Camera'], ['imu', 'IMU'],
   ['lidar', 'LiDAR'], ['realsense', 'RealSense Camera'], ['insta360', 'Insta360'], ['lidar3d', '3D LiDAR'],
+  ['leds', 'LEDs'], ['webcam', 'Webcam'],
 ];
 const READINGS = [['robot_temp', 'Robot Temperature', '°C'], ['led_temp', 'LED Temperature', '°C'],
   ['battery_percentage', 'Battery Percentage', '%']];
