@@ -3,169 +3,111 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>BladeScan V2 — GÜRİŞ Technology</title>
-  <link rel="stylesheet" href="./src/styles.css">
-  <script type="module" src="./src/tablet.js"></script>
+  <meta name="color-scheme" content="dark">
+  <title>BladeScan — Live inspection</title>
+  <link rel="icon" href="/src/assets/favicon.png" type="image/png"><link rel="apple-touch-icon" href="/src/assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="/src/styles.css">
+  <script type="module" src="/src/inspection/main.js"></script>
 </head>
 <body>
 <div class="console" id="console">
   <header class="topbar">
-    <div class="brand">
-      <strong>GÜRİŞ <span>TECHNOLOGY</span></strong>
-      <span class="product">BladeScan <b>V2</b></span>
-    </div>
-    <div class="header-actions">
-      <span class="badge" id="backend-status">Backend disconnected</span>
-      <button class="button" id="fullscreen-button" type="button"
-              aria-pressed="false">Fullscreen</button>
-    </div>
+    <div class="brand"><img src="/src/assets/logo.png" alt="GÜRİŞ Technology"><span class="product">BladeScan <small>V2</small></span></div>
+    <div id="rec-indicator" class="rec" role="status" aria-live="off" hidden><span class="rec-dot" aria-hidden="true"></span>REC <time id="rec-time">00:00</time></div>
+    <button id="fullscreen-button" class="icon-button" type="button" aria-label="Enter fullscreen" title="Fullscreen" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>
+    </button>
   </header>
 
-  <main class="workspace">
-    <section class="vision-column" aria-labelledby="camera-title">
-      <div class="camera-panel">
-        <div class="camera-heading">
-          <div>
-            <span class="eyebrow">LIVE VIEW</span>
-            <h1 id="camera-title">Insta360</h1>
-          </div>
-          <span class="camera-badge" id="camera-status">Camera disconnected</span>
-        </div>
-
-        <div class="camera-viewport" id="camera-viewport">
-          <img id="camera-feed" alt="Insta360 live preview" hidden>
-          <div class="empty-state" id="camera-empty">
-            <span class="empty-icon" aria-hidden="true">◎</span>
-            <h2>Waiting for video</h2>
-            <p>Live preview will appear here when an inspection starts.</p>
-          </div>
-        </div>
-
-        <div class="camera-footer">
-          <span id="stream-status">Stream disconnected</span>
-          <span>Aspect ratio preserved</span>
-        </div>
-      </div>
-
-      <div class="metrics" aria-label="Robot measurements">
-        <div class="metric">
-          <span id="distance-label">Inspection distance</span>
-          <strong><span id="distance-value">—</span> <small>m</small></strong>
-        </div>
-        <div class="metric">
-          <span>Forward speed</span>
-          <strong><span id="linear-speed">—</span> <small>m/s</small></strong>
-        </div>
-        <div class="metric">
-          <span>Angular speed</span>
-          <strong><span id="angular-speed">—</span> <small>rad/s</small></strong>
-        </div>
-      </div>
-    </section>
-
-    <aside class="control-rail" aria-label="Inspection and driving">
-      <section class="panel inspection-panel">
-        <div class="section-heading">
-          <h2>Inspection</h2>
-          <span class="badge" id="inspection-state">Disconnected</span>
-        </div>
-
-        <p class="inspection-summary" id="inspection-summary">
-          Details have not been entered.
-        </p>
-
-        <button class="button edit-button" id="details-button" type="button"
-                aria-haspopup="dialog" aria-controls="inspection-dialog">
-          Inspection details
-        </button>
-
-        <button class="button primary" id="start-button" type="button" disabled>
-          Start inspection
-        </button>
-
-        <div class="button-row">
-          <button class="button" id="finish-button" type="button" disabled>Finish</button>
-          <button class="button danger" id="cancel-button" type="button" disabled>Cancel</button>
-        </div>
-
-        <p class="hint" id="inspection-message" role="status">
-          Inspection connection is not active yet.
-        </p>
-      </section>
-
-      <section class="panel drive-panel" aria-labelledby="teleop-title">
-        <div class="section-heading">
-          <h2 id="teleop-title">Manual driving</h2>
-          <span class="badge">Inactive</span>
-        </div>
-
-        <div class="teleop-pad" aria-label="Drive controls">
-          <button class="drive-button forward" type="button" disabled>
-            <span aria-hidden="true">↑</span><small>Forward</small>
-          </button>
-          <button class="drive-button left" type="button" disabled>
-            <span aria-hidden="true">←</span><small>Left</small>
-          </button>
-          <button class="drive-button stop" type="button" disabled>
-            <span aria-hidden="true">■</span><small>Stop</small>
-          </button>
-          <button class="drive-button right" type="button" disabled>
-            <span aria-hidden="true">→</span><small>Right</small>
-          </button>
-          <button class="drive-button backward" type="button" disabled>
-            <span aria-hidden="true">↓</span><small>Reverse</small>
-          </button>
-        </div>
-
-        <p class="hint">Drive control is disconnected. Buttons will not send commands.</p>
-      </section>
-    </aside>
+  <main class="live-stage" aria-label="Live inspection camera">
+    <div id="camera-viewport" class="camera-viewport">
+      <img id="camera-feed" alt="Live camera preview" hidden>
+      <div class="empty-state" id="camera-empty"><span class="empty-icon" aria-hidden="true">◎</span><h1>Waiting for live video</h1><p id="camera-status">Connecting to camera…</p></div>
+    </div>
+    <p id="ui-message" class="toast" role="status" hidden></p>
   </main>
 
-  <footer class="footer">
-    <span>Status monitoring</span>
-    <span id="ui-message" role="status">Camera and drive connections are not active yet.</span>
-  </footer>
+  <section class="deck" aria-label="Inspection controls">
+    <div class="side" aria-label="Camera and lights">
+      <div class="block">
+        <div class="block-head"><h2>Camera</h2><small id="camera-source-note">Insta360</small></div>
+        <div class="segmented four" role="radiogroup" aria-label="Camera source" id="camera-source">
+          <button type="button" role="radio" aria-checked="true" data-camera="insta360">Insta360</button>
+          <button type="button" role="radio" aria-checked="false" data-camera="gimbal" disabled title="Not connected">Gimbal</button>
+          <button type="button" role="radio" aria-checked="false" data-camera="dslr" disabled title="Not connected">DSLR</button>
+          <button type="button" role="radio" aria-checked="false" data-camera="webcam" disabled title="Not connected">Webcam</button>
+        </div>
+      </div>
+      <div class="block grow">
+        <div class="block-head"><h2>Lights</h2><small id="led-status">Connecting…</small></div>
+        <div class="sliders" id="led-sliders">
+          <label class="vslider" data-channel="a"><output>—</output><input type="range" min="0" max="4" step="1" value="0" aria-label="LED 1 brightness" aria-orientation="vertical" disabled><span>L1</span></label>
+          <label class="vslider" data-channel="b"><output>—</output><input type="range" min="0" max="4" step="1" value="0" aria-label="LED 2 brightness" aria-orientation="vertical" disabled><span>L2</span></label>
+          <label class="vslider" data-channel="c"><output>—</output><input type="range" min="0" max="4" step="1" value="0" aria-label="LED 3 brightness" aria-orientation="vertical" disabled><span>L3</span></label>
+          <label class="vslider" data-channel="d"><output>—</output><input type="range" min="0" max="4" step="1" value="0" aria-label="LED 4 brightness" aria-orientation="vertical" disabled><span>L4</span></label>
+          <label class="vslider all" data-channel="all"><output>—</output><input type="range" min="0" max="4" step="1" value="0" aria-label="All LEDs brightness" aria-orientation="vertical" disabled><span>All</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="inspection-actions">
+        <button id="cancel-button" class="action cancel" type="button" disabled>Cancel</button>
+        <button id="photo-button" class="action photo" type="button" disabled>Take photo</button>
+        <button id="finish-button" class="action finish" type="button" disabled>Finish</button>
+      </div>
+      <div class="status-row">
+        <button id="status-button" class="status-chip" type="button" aria-haspopup="dialog" aria-controls="status-dialog">
+          <span id="status-dot" class="dot" aria-hidden="true"></span>
+          <span id="inspection-state">Connecting…</span>
+          <span class="sep" aria-hidden="true"></span>
+          <span id="distance-label">Distance</span>
+          <strong><span id="distance-value">—</span> m</strong>
+          <span class="sep" aria-hidden="true"></span>
+          <span id="hardware-summary">Devices —</span>
+          <span class="chevron" aria-hidden="true">›</span>
+        </button>
+        <button id="details-button" class="ghost" type="button" aria-haspopup="dialog" aria-controls="inspection-dialog">Inspection info</button>
+      </div>
+      <p id="inspection-message" class="message" role="status">Waiting for inspection status…</p>
+    </div>
+
+    <div class="side" aria-label="Driving">
+      <div class="block">
+        <div class="block-head"><h2>Drive mode</h2><small id="drive-status">Locked</small></div>
+        <div class="segmented three" role="radiogroup" aria-label="Drive mode" id="drive-mode">
+          <button type="button" role="radio" aria-checked="true" data-mode="1">Mode 1</button>
+          <button type="button" role="radio" aria-checked="false" data-mode="2">Mode 2</button>
+          <button type="button" role="radio" aria-checked="false" data-mode="3">Mode 3</button>
+        </div>
+      </div>
+      <div class="block grow drive-body">
+        <label class="vslider speed" for="speed-level"><output id="speed-value" for="speed-level">3</output><input id="speed-level" type="range" min="1" max="5" step="1" value="3" aria-label="Driving speed level" aria-orientation="vertical"><span id="speed-limit">0.12 m/s</span></label>
+        <div id="drive-stick" class="stick-pad is-disabled" role="group" tabindex="0" aria-label="Drive joystick. Hold and drag to drive; release to stop. Arrow keys also supported." aria-disabled="true">
+          <span class="axis vertical"></span><span class="axis horizontal"></span><span id="drive-knob" class="stick-knob"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="status-dialog" aria-labelledby="status-title">
+    <div class="dialog-heading"><div><p>ROBOT</p><h2 id="status-title">Robot status</h2></div><button id="status-close" class="icon-button" type="button" aria-label="Close robot status">×</button></div>
+    <div id="hardware-grid" class="hardware-grid" aria-label="Device status"></div>
+    <dl class="readings">
+      <div><dt>Robot temp</dt><dd id="robot-temp">— °C</dd></div>
+      <div><dt>LED temp</dt><dd id="led-temp">— °C</dd></div>
+      <div><dt>Battery</dt><dd id="battery-value">— %</dd></div>
+      <div><dt>Insta360</dt><dd id="insta-reading">—</dd></div>
+      <div><dt>Lights</dt><dd id="led-reading">—</dd></div>
+    </dl>
+    <div class="dialog-actions"><span></span><button id="status-ok" class="action finish" type="button">Close</button></div>
+  </dialog>
 
   <dialog id="inspection-dialog" aria-labelledby="dialog-title">
-    <form id="inspection-form">
-      <div class="dialog-heading">
-        <div>
-          <span class="eyebrow">INSPECTION</span>
-          <h2 id="dialog-title">Inspection details</h2>
-        </div>
-        <button class="icon-button" id="dialog-close" type="button"
-                aria-label="Close dialog">×</button>
-      </div>
-
-      <p class="dialog-description">Enter the inspection location and operator.</p>
-
-      <div class="form-grid">
-        <label class="full-width">Plant
-          <input name="plant" maxlength="100" placeholder="Plant name" required>
-        </label>
-        <label>Turbine
-          <input name="turbine" maxlength="100" placeholder="WT01" required>
-        </label>
-        <label>Blade
-          <input name="blade" maxlength="100" placeholder="A" required>
-        </label>
-        <label>Section
-          <input name="section" maxlength="100" placeholder="1" required>
-        </label>
-        <label>Operator
-          <input name="operator_name" maxlength="100" placeholder="Operator name" required>
-        </label>
-      </div>
-
-      <p class="hint">Details are kept while this page is open; this does not start an inspection.</p>
-
-      <div class="dialog-actions">
-        <button class="button" id="dialog-cancel" type="button">Cancel</button>
-        <button class="button primary" type="submit">Apply details</button>
-      </div>
-    </form>
+    <div class="dialog-heading"><div><p>INSPECTION</p><h2 id="dialog-title">Inspection information</h2></div><button id="dialog-close" class="icon-button" type="button" aria-label="Close inspection information">×</button></div>
+    <dl id="inspection-information" class="information-grid"></dl>
+    <p id="dialog-message"></p>
+    <div class="dialog-actions"><a href="/dashboard" class="dashboard-link">Dashboard</a><button id="dialog-cancel" class="action finish" type="button">Close</button></div>
   </dialog>
 </div>
 </body>

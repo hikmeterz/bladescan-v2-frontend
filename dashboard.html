@@ -1,12 +1,113 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GÜRİŞ Technology · Inspection</title><link rel="stylesheet" href="/src/portal.css"><script type="module" src="/src/dashboard.js"></script></head><body>
-<header class="topbar"><a href="/dashboard" class="brand">GÜRİŞ <small>TECHNOLOGY</small></a><nav><span class="nav-current">My workspace</span><button id="users-button" hidden>Users</button></nav><div class="account"><span class="avatar" id="avatar">—</span><div><strong id="user-name">Loading…</strong><small id="user-role"></small></div><button id="logout" class="text-button">Sign out</button></div></header>
-<main class="workspace"><div class="page-heading"><div><h1>My inspections</h1></div><button class="primary" id="new-button" disabled>+ New inspection</button></div>
-<div id="banner" class="banner" role="status">Loading robot status…</div><p id="message" class="form-message" role="alert"></p>
-<section class="metrics" aria-label="Account summary"><article><span>Total inspections</span><strong id="total">—</strong></article><article><span>Completed</span><strong id="completed">—</strong></article><article><span>Needs attention</span><strong id="attention">—</strong></article><article><span>Total distance</span><strong id="distance">—</strong></article></section>
-<section class="panel"><div class="panel-heading"><div><h2>Inspection history</h2></div><button id="refresh">Refresh</button></div><form id="filters" class="filters"><label class="search">Search<input id="query" placeholder="Plant, turbine or blade" maxlength="100"></label><label>Status<select id="state"><option value="">All statuses</option><option value="succeeded">Completed</option><option value="running">In progress</option><option value="finalizing">Finalizing</option><option value="aborted">Failed</option><option value="canceled">Canceled</option><option value="unknown">Outcome unknown</option><option value="not_sent">Not sent</option></select></label><button type="submit">Filter</button></form>
-<div class="table-wrap"><table><thead><tr><th>Plant / Turbine</th><th>Blade / Section</th><th>Started</th><th>Distance</th><th>Status</th><th><span class="sr-only">Action</span></th></tr></thead><tbody id="rows"></tbody></table></div><div id="empty" class="empty" hidden><span>○</span><h3>No inspections yet</h3><p>Start a new inspection or change your filters.</p></div><footer class="pagination"><span id="count">Loading…</span><div><button id="prev" disabled>← Previous</button><span id="page">1 / 1</span><button id="next" disabled>Next →</button></div></footer></section>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GÜRİŞ Technology · Inspection</title>
+  <link rel="icon" href="/src/assets/favicon.png" type="image/png"><link rel="apple-touch-icon" href="/src/assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="/src/portal.css">
+  <script type="module" src="/src/dashboard/main.js"></script>
+</head>
+<body>
+
+<header class="topbar dashboard-header">
+  <a href="/dashboard" class="dashboard-logo" aria-label="Guris Technology home">
+    <img src="/src/assets/logo.png" alt="GÜRİŞ Technology" width="199" height="88">
+  </a>
+  <nav aria-label="Administration">
+    <button id="users-button" type="button" hidden>Users</button>
+  </nav>
+  <details id="account-menu" class="profile-dropdown">
+    <summary id="account-toggle" aria-label="Account options" aria-expanded="false" aria-controls="account-panel">
+      <span class="avatar" id="avatar" aria-hidden="true">—</span>
+      <span class="profile-text"><strong id="user-name">Loading…</strong><small id="user-role"></small></span>
+      <svg class="profile-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </summary>
+    <div id="account-panel" class="profile-panel">
+      <button id="logout" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5H5v14h4M13 8l4 4-4 4M9 12h12"/></svg>
+        Logout
+      </button>
+    </div>
+  </details>
+</header>
+
+<main class="workspace">
+  <div class="page-heading">
+    <div><h1>My inspections</h1></div>
+    <div class="dashboard-actions">
+      <div id="hardware-slot" class="hardware-toolbar"></div>
+      <button class="primary" id="new-button" disabled>+ New inspection</button>
+    </div>
+  </div>
+  <div id="banner" class="banner" role="status">Loading robot status…</div>
+  <p id="message" class="form-message" role="alert"></p>
+
+  <section class="panel inspection-history-panel">
+    <div class="panel-heading">
+      <div><h2></h2></div>
+      <div class="history-tools">
+        <form id="filters" class="filters">
+          <label class="search">Search<input id="query" placeholder="Plant, turbine or blade" maxlength="100"></label>
+          <label>Status<select id="state">
+            <option value="">All statuses</option><option value="succeeded">Completed</option>
+            <option value="running">In progress</option><option value="finalizing">Finalizing</option>
+            <option value="aborted">Failed</option><option value="canceled">Canceled</option>
+            <option value="unknown">Outcome unknown</option><option value="not_sent">Not sent</option>
+          </select></label>
+        </form>
+        <button id="refresh" class="refresh-icon" type="button" aria-label="Refresh inspections" title="Refresh inspections">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1A8 8 0 0 1 19.5 10M4.5 14A8 8 0 0 0 17.9 17.9"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="inspection-table grouped-history-table">
+        <thead><tr><th>Inspection Location</th><th>Started</th><th>Distance</th><th>Status</th><th><span class="sr-only">Action</span></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="empty" class="empty" hidden><span>○</span><h3>No inspections yet</h3><p>Start a new inspection or change your filters.</p></div>
+    <footer class="pagination"><span id="count">Loading…</span><div><button id="prev" disabled>← Previous</button><span id="page">1 / 1</span><button id="next" disabled>Next →</button></div></footer>
+  </section>
 </main>
-<dialog id="new-dialog"><form id="new-form"><div class="dialog-heading"><div><p class="eyebrow">NEW INSPECTION</p><h2>Start inspection</h2></div><button type="button" data-close="new-dialog" aria-label="Close">×</button></div><p class="muted">Operator details come from your signed-in account.</p><div class="form-grid"><label>Plant<input name="plant" required maxlength="100" placeholder="Plant name"></label><label>Turbine<input name="turbine" required maxlength="100" placeholder="WT01"></label><label>Blade<input name="blade" required maxlength="100" placeholder="A"></label><label>Section<input name="section" required maxlength="100" placeholder="1"></label></div><p id="start-message" class="form-message" role="alert"></p><div class="dialog-actions"><button type="button" data-close="new-dialog">Cancel</button><button id="start" class="primary">Start recording →</button></div></form></dialog>
-<dialog id="detail-dialog" class="detail-dialog"><div class="dialog-heading"><div><p class="eyebrow">INSPECTION DETAILS</p><h2 id="detail-title">Loading…</h2></div><button data-close="detail-dialog" aria-label="Close">×</button></div><div id="detail-body"></div></dialog>
-<dialog id="users-dialog"><div class="dialog-heading"><h2>Users</h2><button data-close="users-dialog" aria-label="Close">×</button></div><div id="users-list" class="users-list"></div><h3>New user</h3><form id="user-form"><div class="form-grid"><label>Username<input name="username" required pattern="[a-zA-Z0-9_.-]{3,64}" autocomplete="off"></label><label>Display name<input name="display_name" required maxlength="100"></label><label>Role<select name="role"><option value="operator">Operator</option><option value="viewer">Viewer</option><option value="admin">Administrator</option></select></label><label>Password<input name="password" type="password" required minlength="6" maxlength="128" autocomplete="new-password"></label></div><p id="user-message" class="form-message" role="alert"></p><button class="primary" id="create-user">Create user</button></form></dialog>
-</body></html>
+
+<dialog id="new-dialog">
+  <form id="new-form">
+    <div class="dialog-heading"><div><p class="eyebrow">NEW INSPECTION</p><h2>Start inspection</h2></div><button type="button" data-close="new-dialog" aria-label="Close">×</button></div>
+    <p class="muted">Operator details come from your signed-in account.</p>
+    <div class="form-grid">
+      <label>Plant<select name="plant" required disabled><option value="">Select a plant</option></select></label>
+      <label>Turbine<select name="turbine" required disabled><option value="">Select a plant first</option></select></label>
+      <label>Blade<select name="blade" required disabled><option value="">Choose blade</option></select></label>
+      <label>Section<select name="section" required disabled><option value="">Choose a section</option></select></label>
+    </div>
+    <p id="start-message" class="form-message" role="alert"></p>
+    <div class="dialog-actions"><button type="button" data-close="new-dialog">Cancel</button><button id="start" class="primary">Start recording →</button></div>
+  </form>
+</dialog>
+
+<dialog id="detail-dialog" class="detail-dialog">
+  <div class="dialog-heading"><div><p class="eyebrow">INSPECTION DETAILS</p><h2 id="detail-title">Loading…</h2></div><button data-close="detail-dialog" aria-label="Close">×</button></div>
+  <div id="detail-body"></div>
+</dialog>
+
+<dialog id="users-dialog">
+  <div class="dialog-heading"><h2>Users</h2><button data-close="users-dialog" aria-label="Close">×</button></div>
+  <div id="users-list" class="users-list"></div>
+  <h3>New user</h3>
+  <form id="user-form">
+    <div class="form-grid">
+      <label>Username<input name="username" required pattern="[a-zA-Z0-9_.-]{3,64}" autocomplete="off"></label>
+      <label>Display name<input name="display_name" required maxlength="100"></label>
+      <label>Role<select name="role"><option value="operator">Operator</option><option value="viewer">Viewer</option><option value="admin">Administrator</option></select></label>
+      <label>Password<input name="password" type="password" required minlength="6" maxlength="128" autocomplete="new-password"></label>
+    </div>
+    <p id="user-message" class="form-message" role="alert"></p>
+    <button class="primary" id="create-user">Create user</button>
+  </form>
+</dialog>
+</body>
+</html>
