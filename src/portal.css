@@ -688,3 +688,7 @@ main.workspace.viewport-dashboard {
   .hardware-telemetry { border-left: 0; border-top: 1px solid #edf0f4; padding-left: 0; padding-top: 12px; }
   #hardware-dialog { max-height: 90vh; overflow-y: auto; }
 }
+
+/* Sign-in page: GURIS logo instead of the text brand */
+.login-card > .login-logo { display: block; margin-bottom: 30px; }
+.login-card > .login-logo img { display: block; width: 200px; max-width: 70%; height: auto; }

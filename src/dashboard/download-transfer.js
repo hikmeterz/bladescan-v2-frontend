@@ -44,7 +44,7 @@ function rowLabel(d) {
   }
 }
 
-// "Video Downloaded" step in the inspection timeline.
+// "Downloaded" step in the inspection timeline.
 // "Videos 1/2 · Photos 0/1": files on the Jetson out of those the camera recorded.
 function mediaCounts(files) {
   if (!Array.isArray(files) || !files.length) return '';
@@ -58,16 +58,16 @@ export function downloadTimelineStep(d) {
   const total = d?.total_files || 0, done = d?.completed_files || 0;
   const count = total ? ` · ${mediaCounts(d.files) || `${done}/${total} files`}` : '';
   if (s === 'ready')
-    return { title: 'Video Downloaded', status: 'done', detail: `Original recordings stored on Jetson${count}` };
+    return { title: 'Downloaded', status: 'done', detail: `Original recordings stored on Jetson${count}` };
   if (s === 'downloading')
-    return { title: 'Video Downloaded', status: 'active', detail: `Downloading to Jetson · ${downloadPercent(d)}%${count}` };
+    return { title: 'Downloaded', status: 'active', detail: `Downloading to Jetson · ${downloadPercent(d)}%${count}` };
   if (s === 'queued')
-    return { title: 'Video Downloaded', status: 'active', detail: `Waiting in download queue${count}` };
+    return { title: 'Downloaded', status: 'active', detail: `Waiting in download queue${count}` };
   if (s === 'failed')
-    return { title: 'Video Downloaded', status: 'warning', detail: `Download failed${count}` };
+    return { title: 'Downloaded', status: 'warning', detail: `Download failed${count}` };
   if (s === 'unknown')
-    return { title: 'Video Downloaded', status: 'warning', detail: 'Transfer outcome unknown; retry required' };
-  return { title: 'Video Downloaded', status: 'pending', detail: 'Not downloaded to Jetson yet.' };
+    return { title: 'Downloaded', status: 'warning', detail: 'Transfer outcome unknown; retry required' };
+  return { title: 'Downloaded', status: 'pending', detail: 'Not downloaded to Jetson yet.' };
 }
 
 function ensureStyle() {
@@ -281,13 +281,13 @@ export function openDownloadDialog(inspection, ctx, { initial, canStart, onUpdat
 
 // ---------- row button ----------
 
-// Status label: Completed -> Downloading/Queued -> Video Downloaded.
+// Status label: Completed -> Downloading/Queued -> Downloaded.
 // Once the row is exported to USB, the USB module owns the label.
 function applyPill(row, inspection, d) {
   if (!row || inspection.state !== 'succeeded' || row.dataset.usbState === 'ready') return;
   const pill = row.querySelector('td:nth-child(4) .pill');
   if (!pill) return;
-  const [text, tone] = d?.state === 'ready' ? ['Video Downloaded', 'succeeded']
+  const [text, tone] = d?.state === 'ready' ? ['Downloaded', 'succeeded']
     : d?.state === 'downloading' ? ['Downloading', 'running']
     : d?.state === 'queued' ? ['Queued', 'submitted']
     : ['Completed', 'succeeded'];
