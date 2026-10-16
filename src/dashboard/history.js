@@ -10,7 +10,7 @@ import { mountRowUsb } from './usb-transfer.js';
 const PAGE_SIZE = 12;
 const SECTION_COLUMNS = ['Section', 'Started', 'Distance', 'Status', ''];
 
-export function createHistory({ getMe, onDetails, onProgress }) {
+export function createHistory({ getMe, onDetails, onProgress, selection }) {
   let page = 1, pages = 1, epoch = 0;
   const expanded = new Set();
   const ctx = { request, getMe };
@@ -18,7 +18,14 @@ export function createHistory({ getMe, onDetails, onProgress }) {
   function sectionRow(r) {
     const tr = node('tr', undefined, 'inspection-child');
     const location = node('td');
-    location.append(node('strong', 'Section ' + r.section));
+    const label = node('strong', 'Section ' + r.section);
+    if (selection) {
+      const cell = node('span', undefined, 'bulk-cell');
+      cell.append(selection.rowBox(r), label);
+      location.append(cell);
+    } else {
+      location.append(label);
+    }
     tr.append(location, node('td', date(r.created_at)), node('td', meters(r.distance_m)));
 
     const state = node('td'), tracking = node('button', undefined, 'tracking-button');
@@ -49,7 +56,13 @@ export function createHistory({ getMe, onDetails, onProgress }) {
     const day = g.day?.split('-').reverse().join('.') || 'Unknown date';
     toggle.append(arrow, node('strong', `${day} · ${g.plant} / ${g.turbine} · Blade ${g.blade}`),
       node('span', `${g.count} inspections`, 'group-count'));
-    cell.append(toggle);
+    if (selection) {
+      const wrap = node('div', undefined, 'bulk-group');
+      wrap.append(selection.groupBox(g), toggle);
+      cell.append(wrap);
+    } else {
+      cell.append(toggle);
+    }
     header.append(cell);
 
     const content = node('tr', undefined, 'inspection-group-content'), contentCell = node('td');

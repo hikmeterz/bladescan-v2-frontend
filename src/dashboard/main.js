@@ -8,6 +8,7 @@ import { createHistory } from './history.js';
 import { createRobotStatus } from './robot-status.js';
 import { openDetails } from './details.js';
 import { openInspectionProgress } from './progress.js';
+import { createSelection } from './selection.js';
 
 // Dashboard entry point: builds each page section and connects them.
 let me = null;
@@ -19,7 +20,9 @@ for (const button of document.querySelectorAll('[data-close]'))
 const account = mountAccountMenu();
 mountHardwareStatus($('hardware-slot'));
 const users = mountUsers();
-const history = createHistory({ getMe, onDetails: openDetails, onProgress: openInspectionProgress });
+let history = null;
+const selection = createSelection({ getMe, onDone: () => history.load() });
+history = createHistory({ getMe, onDetails: openDetails, onProgress: openInspectionProgress, selection });
 const robot = createRobotStatus({ getMe });
 $('refresh').addEventListener('click', () => { history.load(); robot.refresh(); });
 
