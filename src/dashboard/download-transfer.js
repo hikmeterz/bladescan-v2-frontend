@@ -45,10 +45,18 @@ function rowLabel(d) {
 }
 
 // "Video Downloaded" step in the inspection timeline.
+// "Videos 1/2 · Photos 0/1": files on the Jetson out of those the camera recorded.
+function mediaCounts(files) {
+  if (!Array.isArray(files) || !files.length) return '';
+  const isPhoto = f => /\.(insp|jpe?g|dng)$/i.test(f.name || '');
+  const part = (list, word) => (list.length ? `${word} ${list.filter(f => f.state === 'ready').length}/${list.length}` : '');
+  return [part(files.filter(f => !isPhoto(f)), 'Videos'), part(files.filter(isPhoto), 'Photos')].filter(Boolean).join(' · ');
+}
+
 export function downloadTimelineStep(d) {
   const s = d?.state || 'not_downloaded';
   const total = d?.total_files || 0, done = d?.completed_files || 0;
-  const count = total ? ` · ${done}/${total} files` : '';
+  const count = total ? ` · ${mediaCounts(d.files) || `${done}/${total} files`}` : '';
   if (s === 'ready')
     return { title: 'Video Downloaded', status: 'done', detail: `Original recordings stored on Jetson${count}` };
   if (s === 'downloading')

@@ -10,6 +10,13 @@ import { mountRowUsb } from './usb-transfer.js';
 const PAGE_SIZE = 12;
 const SECTION_COLUMNS = ['Section', 'Started', 'Distance', 'Status', ''];
 
+// "2 videos · 1 photo" for a row (counts come with the list). Where the files
+// are is shown by the Download button, the timeline and Details.
+function mediaLine(m) {
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  return `${plural(m.videos, 'video')} · ${plural(m.photos, 'photo')}`;
+}
+
 export function createHistory({ getMe, onDetails, onProgress, selection }) {
   let page = 1, pages = 1, epoch = 0;
   const expanded = new Set();
@@ -25,6 +32,11 @@ export function createHistory({ getMe, onDetails, onProgress, selection }) {
       location.append(cell);
     } else {
       location.append(label);
+    }
+    if (r.media) {
+      const line = node('small', mediaLine(r.media), 'media-line');
+      if (selection) line.style.paddingLeft = '26px';
+      location.append(line);
     }
     tr.append(location, node('td', date(r.created_at)), node('td', meters(r.distance_m)));
 
