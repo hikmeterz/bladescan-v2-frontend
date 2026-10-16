@@ -25,9 +25,11 @@ const selection = createSelection({ getMe, onDone: () => history.load() });
 history = createHistory({ getMe, onDetails: openDetails, onProgress: openInspectionProgress, selection });
 const robot = createRobotStatus({ getMe });
 $('refresh').addEventListener('click', () => { history.load(); robot.refresh(); });
+document.addEventListener('inspections-changed', () => history.load());
 
 try {
   me = (await request('/api/auth/me')).user;
+  document.body.dataset.role = me.role;
   account.showUser(me);
   users.show(me);
   await Promise.all([history.load(), robot.refresh()]);

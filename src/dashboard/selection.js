@@ -1,5 +1,6 @@
 import { $, node } from '../lib/dom.js';
 import { send as request } from '../lib/api.js';
+import { confirmDelete } from './confirm-delete.js';
 
 // Bulk selection: checkboxes on finished inspections and a bar with bulk
 // Download / Export to USB. Each inspection still becomes its own job (and its
@@ -31,6 +32,22 @@ const ACTIONS = {
     },
     start: id => request(path(id, 'usb-upload'), {}),
   },
+  delete: {
+    label: 'Delete',
+    className: 'bulk-delete',
+    confirm(items) {
+      const notExported = items.filter(r => r.usb_upload?.state !== 'ready').length;
+      return confirmDelete({
+        title: `Delete ${items.length} inspection${items.length === 1 ? '' : 's'}?`,
+        items: items.map(r => `${r.plant} / ${r.turbine} / Blade ${r.blade} / Section ${r.section}`),
+        details: 'Their folders on the Jetson and their history are removed permanently. '
+          + 'Files on the camera SD card and on USB drives are not affected.',
+        warning: notExported ? `${notExported} of them have not been exported to USB: the files on the Jetson are the only downloaded copy.` : '',
+      });
+    },
+    decide: async () => null,
+    start: id => request(path(id, 'delete'), { confirm: id }),
+  },
 };
 
 function ensureStyle() {
@@ -43,6 +60,7 @@ function ensureStyle() {
   .bulk-bar .bulk-result{flex-basis:100%;margin:0;color:#41546b;font-size:12px}
   .bulk-bar .bulk-result:empty{display:none}
   .bulk-bar button{padding:7px 12px;font-size:12px}
+  .bulk-bar .bulk-delete{color:#b42318;border-color:#f3b8b3}
   .bulk-check{width:16px;height:16px;margin:0 10px 0 0;padding:0;flex:none;vertical-align:-3px;cursor:pointer;accent-color:#0056b8}
   .bulk-check:disabled{cursor:not-allowed;opacity:.35}
   .bulk-cell{display:flex;align-items:center}
@@ -65,7 +83,7 @@ export function createSelection({ getMe, onDone }) {
   const result = node('p', '', 'bulk-result');
   result.setAttribute('role', 'status');
   const buttons = Object.entries(ACTIONS).map(([kind, action]) => {
-    const b = node('button', action.label);
+    const b = node('button', action.label, action.className);
     b.type = 'button';
     b.addEventListener('click', () => run(kind));
     return b;
@@ -130,6 +148,7 @@ export function createSelection({ getMe, onDone }) {
   async function run(kind) {
     if (busy || !selected.size) return;
     const action = ACTIONS[kind];
+    if (action.confirm && !(await action.confirm([...selected.values()]))) return;
     busy = true;
     sync();
     const items = [...selected.values()];
@@ -142,11 +161,12 @@ export function createSelection({ getMe, onDone }) {
         if (reason) { skipped.set(reason, (skipped.get(reason) || 0) + 1); continue; }
         await action.start(r.request_id);
         queued.push(name);
+        if (kind === 'delete') selected.delete(r.request_id);
       } catch (e) {
         failed.push(`${name}: ${e.message}`);
       }
     }
-    const parts = [`${queued.length} queued`];
+    const parts = [`${queued.length} ${kind === 'delete' ? 'deleted' : 'queued'}`];
     for (const [reason, n] of skipped) parts.push(`${n} skipped (${reason})`);
     if (failed.length) parts.push(`${failed.length} failed — ${failed.join('; ')}`);
     result.textContent = `${action.label}: ${parts.join(' · ')}`;
