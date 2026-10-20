@@ -55,6 +55,17 @@ small { font-size: 12px; }
   align-items: center;
 }
 .banner a { font-weight: 700; }
+.banner-actions { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.banner-recover {
+  padding: 7px 12px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+.banner-recover:not(:disabled):hover { background: #ffffff80; }
 .panel { background: white; border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
 .panel-heading {
   display: flex;
