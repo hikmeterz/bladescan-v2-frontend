@@ -137,3 +137,57 @@ dialog::backdrop{background:#041017a6;backdrop-filter:blur(3px)}
 
 /* USB webcam mounted upside down: turn the live view in the browser (no re-encoding). */
 #camera-feed[data-source="webcam"][data-rotate="180"] { transform: rotate(180deg); }
+
+/* Inspection screen: controls at the top of the centre column, blade view below */
+.center{justify-content:flex-start}
+.blade-view{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.blade-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted)}
+.blade-title{display:inline-flex;align-items:center;gap:8px}
+.blade-title b{color:var(--text);font-weight:600}
+.blade-airfoil{width:52px;height:18px}
+.blade-airfoil .af-outline{fill:none;stroke:var(--line-2);stroke-width:1.2}
+.blade-airfoil .af-l,.blade-airfoil .af-t{fill:transparent}
+.blade-airfoil .af-spar{stroke:#3c5560;stroke-width:1.2;stroke-dasharray:2 2}
+.blade-view[data-section="L"] .af-l,.blade-view[data-section="T"] .af-t{fill:rgba(61,220,151,.45)}
+.blade-distance b{color:var(--accent);font-size:14px;font-variant-numeric:tabular-nums}
+.blade-distance small{font-size:11px;color:var(--muted)}
+.blade-svg{flex:1;width:100%;min-height:60px;display:block}
+.blade-shell{fill:#0d181c;stroke:var(--line-2);stroke-width:1.2}
+.blade-cavity{fill:transparent;transition:fill .3s}
+.blade-cavity.active{fill:rgba(61,220,151,.13);stroke:rgba(61,220,151,.45);stroke-width:1}
+.blade-spar{fill:none;stroke:#3c5560;stroke-width:1.5;stroke-dasharray:4 3}
+.blade-root{fill:#16252b;stroke:var(--line-2)}
+.blade-end,.blade-edge-label,.blade-ticks text{fill:var(--muted);font-size:9px;font-family:inherit}
+.blade-edge-label{fill:var(--faint);font-size:8.5px;letter-spacing:.04em;text-transform:uppercase}
+.blade-view[data-section="L"] .blade-edge-label:nth-of-type(3),.blade-view[data-section="T"] .blade-edge-label:nth-of-type(4){fill:var(--accent)}
+.blade-ticks line{stroke:var(--faint)}
+.blade-travel{fill:rgba(61,220,151,.55);transition:width .6s ease,y .3s}
+.blade-robot{transition:transform .6s ease}
+.blade-robot-halo{fill:rgba(61,220,151,.18)}
+.blade-robot-body{fill:var(--accent);stroke:#0b1418;stroke-width:1}
+.blade-3d{flex:1;min-height:0;position:relative}
+.blade-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+@media (prefers-reduced-motion:reduce){.blade-robot,.blade-travel{transition:none}}
+
+/* Fluid control deck: every size follows the screen between a minimum and a
+   maximum, so the deck shrinks on tablets and the live view gets the space.
+   Narrow screens (<= 860 px) keep their stacked layout. */
+@media (min-width:861px){
+  :root{
+    --bar:clamp(40px,5.5vh,52px);
+    --side:clamp(230px,22vw,340px);
+    --stick:clamp(96px,16vh,170px);
+    --knob:clamp(38px,6vh,64px);
+    --slider-h:clamp(56px,10vh,112px);
+  }
+  .deck{padding:clamp(6px,1.2vh,14px) clamp(10px,1.4vw,18px) max(clamp(6px,1.2vh,14px),env(safe-area-inset-bottom));gap:clamp(8px,1.4vw,18px)}
+  .side{gap:clamp(6px,1vh,12px)}
+  .block{padding:clamp(6px,1vh,10px) clamp(8px,1vw,12px)}
+  .block-head{margin-bottom:clamp(4px,.8vh,8px)}
+  .center{gap:clamp(5px,.9vh,10px)}
+  .action{height:clamp(36px,5.2vh,50px);font-size:clamp(12px,1.6vh,15px)}
+  .status-chip,.ghost{height:clamp(30px,4.4vh,38px)}
+  .message{font-size:clamp(11px,1.4vh,12px)}
+}
+.blade-view{flex:none;height:clamp(100px,16vh,170px);min-height:0;padding:clamp(5px,.8vh,8px) clamp(8px,1vw,12px) clamp(3px,.6vh,6px)}
+/* end fluid control deck */

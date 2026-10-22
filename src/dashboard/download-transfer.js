@@ -1,3 +1,4 @@
+import { sectionLabel } from '../lib/format.js';
 // Camera download: row button, progress dialog and timeline step.
 // Downloads copy the original recordings from the camera SD card to the Jetson.
 // request() and the signed-in user come from the dashboard modules through ctx.
@@ -153,7 +154,7 @@ export function openDownloadDialog(inspection, ctx, { initial, canStart, onUpdat
 
   const q = s => dialog.querySelector(s);
   q('.dl-location').textContent =
-    `${inspection.plant} / ${inspection.turbine} · Blade ${inspection.blade} / Section ${inspection.section}`;
+    `${inspection.plant} / ${inspection.turbine} · Blade ${inspection.blade} / ${sectionLabel(inspection.section)}`;
 
   const startButton = q('.dl-start');
   const replaced = startButton.cloneNode(true); // drop the listener of the previous inspection
@@ -314,7 +315,7 @@ export function mountDownloadRow(cell, inspection, ctx) {
       : s === 'not_downloaded' && !canStart() ? 'Finish the inspection before downloading.'
       : state.queue_paused ? 'The download queue is paused: another transfer has an unknown outcome.'
       : 'Download details';
-    button.setAttribute('aria-label', `Section ${inspection.section}: ${button.textContent}`);
+    button.setAttribute('aria-label', `${sectionLabel(inspection.section)}: ${button.textContent}`);
     applyPill(button.closest('tr'), inspection, state);
   }
 

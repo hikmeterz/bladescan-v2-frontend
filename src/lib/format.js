@@ -11,3 +11,6 @@ export function duration(seconds) {
   const m = Math.floor(seconds / 60), s = Math.round(seconds % 60);
   return m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min ${s} s`;
 }
+
+// Section codes: L / T since Oct 2026; older inspections used numbers 1-4.
+export const sectionLabel = s => ({ L: 'Leading edge', T: 'Trailing edge' })[s] || (s ? 'Section ' + s : '—');

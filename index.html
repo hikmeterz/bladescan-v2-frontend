@@ -8,6 +8,7 @@
   <link rel="icon" href="/src/assets/favicon.png" type="image/png"><link rel="apple-touch-icon" href="/src/assets/apple-touch-icon.png">
   <link rel="stylesheet" href="/src/styles.css">
   <script type="module" src="/src/inspection/main.js"></script>
+  <script src="/src/vendor/three.min.js"></script>
 </head>
 <body>
 <div class="console" id="console">
@@ -70,6 +71,7 @@
         <button id="details-button" class="ghost" type="button" aria-haspopup="dialog" aria-controls="inspection-dialog">Inspection info</button>
       </div>
       <p id="inspection-message" class="message" role="status">Waiting for inspection status…</p>
+      <div id="blade-view" class="blade-view" aria-label="Robot position in the blade"></div>
     </div>
 
     <div class="side" aria-label="Driving">

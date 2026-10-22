@@ -1,3 +1,4 @@
+import { sectionLabel } from '../lib/format.js';
 // Catalog selection UI; the same plant/turbine relationship is checked by the API.
 export function createInspectionOptions({form,button,message,request,isBusy}){
   const fields=['plant','turbine','blade','section'].map(name=>form.elements.namedItem(name));
@@ -29,7 +30,7 @@ export function createInspectionOptions({form,button,message,request,isBusy}){
       if(mine!==epoch)return;
       if(!Array.isArray(data.plants)||!data.plants.length||!Array.isArray(data.blades)||!Array.isArray(data.sections))throw Error('Inspection options could not be loaded.');
       catalog=data;fill(plant,data.plants.map(p=>p.name),'Select a plant');
-      fill(blade,data.blades,'Choose blade');fill(section,data.sections,'Choose a section');
+      fill(blade,data.blades,'Choose blade');fill(section,data.sections,'Choose a section');for(const o of section.options)if(o.value)o.textContent=sectionLabel(o.value);
       message.textContent='';
     }catch(e){if(mine===epoch)message.textContent=e.message+' Close and reopen this form to retry.';}
     finally{if(mine===epoch){loading=false;sync();}}

@@ -1,3 +1,4 @@
+import { sectionLabel } from '../lib/format.js';
 import { $, node } from '../lib/dom.js';
 import { date, mb } from '../lib/format.js';
 import { send as request } from '../lib/api.js';
@@ -151,7 +152,7 @@ function deleteSection(r, media, usb, dialog) {
     const bytes = onJetson.reduce((sum, f) => sum + (f.size || 0), 0);
     const ok = await confirmDelete({
       title: 'Delete this inspection?',
-      items: [`${r.plant} / ${r.turbine} / Blade ${r.blade} / Section ${r.section}`],
+      items: [`${r.plant} / ${r.turbine} / Blade ${r.blade} / ${sectionLabel(r.section)}`],
       details: `Its folder on the Jetson (${plural(onJetson.length, 'media file')}${bytes ? ', ' + mb(bytes) : ''}, plus recording data) `
         + 'and its history are removed permanently. Files on the camera SD card and on USB drives are not affected.',
       warning: usb?.state === 'ready' ? '' : 'This inspection has not been exported to USB: the files on the Jetson are the only downloaded copy.',
@@ -184,7 +185,7 @@ async function load(id, dialog) {
     $('detail-title').append(pill(r.state));
 
     const grid = node('div', undefined, 'detail-grid');
-    for (const [key, value] of [['Operator', r.operator_name_snapshot], ['Blade / Section', r.blade + ' / ' + r.section],
+    for (const [key, value] of [['Operator', r.operator_name_snapshot], ['Blade / Section', r.blade + ' / ' + sectionLabel(r.section)],
       ['Started', date(r.created_at)], ['Finished', date(r.finished_at)]]) {
       const p = node('p');
       p.append(node('small', key), document.createTextNode(value));

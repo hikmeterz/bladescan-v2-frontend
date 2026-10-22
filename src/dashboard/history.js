@@ -1,3 +1,4 @@
+import { sectionLabel } from '../lib/format.js';
 import { $, node } from '../lib/dom.js';
 import { date, meters } from '../lib/format.js';
 import { send as request } from '../lib/api.js';
@@ -25,7 +26,7 @@ export function createHistory({ getMe, onDetails, onProgress, selection }) {
   function sectionRow(r) {
     const tr = node('tr', undefined, 'inspection-child');
     const location = node('td');
-    const label = node('strong', 'Section ' + r.section);
+    const label = node('strong', sectionLabel(r.section));
     if (selection) {
       const cell = node('span', undefined, 'bulk-cell');
       cell.append(selection.rowBox(r), label);

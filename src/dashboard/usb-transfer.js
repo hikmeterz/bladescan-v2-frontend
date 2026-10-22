@@ -1,3 +1,4 @@
+import { sectionLabel } from '../lib/format.js';
 // USB export: row button, progress dialog and timeline step.
 // request() and the signed-in user come from the dashboard modules through ctx.
 import { closeOnBackdrop } from '../lib/dom.js';
@@ -135,7 +136,7 @@ export function openUsbDialog(inspection, ctx, { initial, canStart, onUpdate }) 
 
   const q = s => dialog.querySelector(s);
   q('.usb-location').textContent =
-    `${inspection.plant} / ${inspection.turbine} · Blade ${inspection.blade} / Section ${inspection.section}`;
+    `${inspection.plant} / ${inspection.turbine} · Blade ${inspection.blade} / ${sectionLabel(inspection.section)}`;
 
   const startButton = q('.usb-start');
   const replaced = startButton.cloneNode(true); // drop the listener of the previous inspection
@@ -291,7 +292,7 @@ export function mountRowUsb(cell, inspection, ctx) {
       : s === 'failed' ? (state.message || 'USB export failed')
       : s === 'not_started' && !canStart() ? 'Download the recordings to the Jetson first.'
       : 'USB export details';
-    button.setAttribute('aria-label', `Section ${inspection.section}: ${button.textContent}`);
+    button.setAttribute('aria-label', `${sectionLabel(inspection.section)}: ${button.textContent}`);
     const row = button.closest('tr');
     if (row) { row.dataset.usbState = s; applyPill(row, inspection); }
   }

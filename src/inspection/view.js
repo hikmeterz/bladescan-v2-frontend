@@ -1,3 +1,5 @@
+import { sectionLabel } from '../lib/format.js';
+import { createBladeView } from './blade-view.js';
 import { $ } from '../lib/dom.js';
 import { TERMINAL } from './session.js';
 
@@ -15,6 +17,7 @@ const number = value => (Number.isFinite(value)
   ? value.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—');
 
 export function createView({ session, dialog, preview }) {
+  const blade = createBladeView(document.getElementById('blade-view'));
   function message(c) {
     const s = session, camera = s.camera;
     if (s.notice) return s.notice;
@@ -31,7 +34,7 @@ export function createView({ session, dialog, preview }) {
   function renderInformation() {
     const c = session.current(), r = c?.request || {};
     const values = [
-      ['Plant', r.plant], ['Turbine', r.turbine], ['Blade', r.blade], ['Section', r.section],
+      ['Plant', r.plant], ['Turbine', r.turbine], ['Blade', r.blade], ['Section', sectionLabel(r.section)],
       ['Operator', r.operator_name || session.user.display_name], ['State', LABELS[c?.state] || 'Unavailable'],
       ['Distance', session.inspectionFresh() && Number.isFinite(c?.distance_m) ? number(c.distance_m) + ' m' : '—'],
       ['Started', c?.created_at ? new Date(c.created_at).toLocaleString('en-GB') : '—'],
@@ -65,6 +68,8 @@ export function createView({ session, dialog, preview }) {
     $('photo-button').textContent = s.photoPending || camera?.photo_busy ? 'Taking photo…' : 'Take photo';
     $('camera-status').textContent = preview.source() === 'webcam' ? 'Connecting to webcam…'
       : camFresh ? CAMERA_LABELS[camera?.state] || 'Waiting for camera' : 'Camera status unavailable';
+    blade.update({ section: c?.request?.section, distance: c?.distance_m,
+      fresh: s.inspectionFresh() && c?.state !== 'unknown' });
     preview.check();
     if (dialog.open) renderInformation();
   }
