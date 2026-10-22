@@ -6,7 +6,7 @@ export function joystickVector(dx,dy,radius,level=3){
   if(magnitude<=deadzone)return {x,y,linear:0,angular:0};
   const sensitivity=(magnitude-deadzone)/(1-deadzone)/magnitude;
   const speed=Math.max(1,Math.min(5,Number(level)||1))/5;
-  return {x,y,linear:Math.max(-.2,Math.min(.2,-y*sensitivity*.2*speed)),angular:Math.max(-1,Math.min(1,-x*sensitivity*speed))};
+  return {x,y,linear:Math.max(-.2,Math.min(.2,-y*sensitivity*.2*speed)),angular:Math.max(-2,Math.min(2,-x*sensitivity*2*(.5+.5*speed)))};
 }
 export function attachJoystick({pad,knob,speed,onVector,onStop,isReady}){
   let pointer=null,enabled=false,keys=new Set();
