@@ -1,6 +1,7 @@
 import { $, node } from '../lib/dom.js';
 import { send as request } from '../lib/api.js';
 import { createInspectionOptions } from './inspection-options.js';
+import { lockBanner } from './recovery.js';
 
 // Robot status banner and the "New inspection" form. A start request whose
 // outcome is unknown is never resent; the banner poll resolves it instead.
@@ -28,6 +29,15 @@ export function createRobotStatus({ getMe }) {
           'Inspection outcome is unknown. Check its status before starting a new recording.'
         : 'You have an inspection in progress.';
       if (current.inspection?.state !== 'unknown') recoveryError = '';
+
+      // Locked after an interrupted recording: offer Unlock & Recover (recovery.js).
+      if (current.lock?.blocked && !current.active) {
+        banner.classList.add('warn');
+        banner.hidden = false;
+        banner.append(lockBanner(current.lock, me));
+        $('new-button').disabled = true;
+        return;
+      }
       banner.hidden = !text;
       banner.append(node('span', text));
 

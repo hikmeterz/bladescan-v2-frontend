@@ -5,6 +5,7 @@ import { send as request } from '../lib/api.js';
 import { pill } from './status.js';
 import { openViewer, thumbUrl } from './media-viewer.js';
 import { confirmDelete } from './confirm-delete.js';
+import { recoveryBlocks } from './recovery.js';
 
 // "Details" dialog: inspection facts, then its media as cards (videos, photos,
 // preview). Every camera file listed by the recording is shown, also those
@@ -196,6 +197,7 @@ async function load(id, dialog) {
     const body = [grid, summary(media, d.usb_upload),
       section('Photos', 'Both lenses in one image · click to view', media.photos, media, 'No photos were taken.'),
       section('Videos', 'Original 360° recordings (.insv) · play in Insta360 Studio', media.videos, media, 'No videos.')];
+    body.splice(1, 0, ...recoveryBlocks(d, () => load(id, dialog)));
     if (media.previews.length) {
       body.push(section('Preview', 'Low-resolution copy of the live view · plays in the browser', media.previews, media, ''));
     }
