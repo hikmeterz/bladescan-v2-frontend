@@ -8,10 +8,19 @@ const MAX_LINEAR = 0.20;           // m/s at speed level 5
 const RATE_MS = 100;
 const RECONNECT_MS = 2000;
 
-export function createTeleop({ session, isBlocked }) {
+export function createTeleop({ session, isBlocked, getSource }) {
   let socket = null, connected = false, timer = null, reconnectTimer = null, command = null;
 
-  function ready() {
+  // Drive back (backend inspection/retrieve.js): no inspection, webcam view only.
+  function retrieveReady() {
+    const s = session, r = s.inspection?.retrieve;
+    return s.alive && !document.hidden && !isBlocked() && connected && s.inspectionFresh()
+      && s.user.role !== 'viewer' && !s.active() && r?.mine === true && getSource?.() === 'webcam';
+  }
+
+  function ready() { return retrieveReady() || inspectionReady(); }
+
+  function inspectionReady() {
     const s = session, c = s.current(), camera = s.camera;
     return s.alive && !document.hidden && !isBlocked() && connected
       && s.inspectionFresh() && s.active() && s.user.role !== 'viewer'

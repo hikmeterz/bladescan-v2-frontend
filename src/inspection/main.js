@@ -7,6 +7,7 @@ import { createTeleop } from './teleop.js';
 import { mountCommands } from './commands.js';
 import { mountControls } from './controls.js';
 import { startHardwareStatus } from './hardware.js';
+import { mountDriveBack } from './driveback.js';
 
 // Live inspection screen entry point: wires the session poll to the view,
 // teleop, preview, commands and deck controls.
@@ -15,11 +16,12 @@ const session = new InspectionSession({ user });
 const dialog = $('inspection-dialog');
 const preview = createPreview(session);
 const view = createView({ session, dialog, preview });
-const teleop = createTeleop({ session, isBlocked: () => dialog.open });
+const teleop = createTeleop({ session, isBlocked: () => dialog.open, getSource: () => preview.source() });
 const refresh = () => { view.render(); teleop.syncUi(); };
 
 mountCommands({ session, teleop, refresh });
 mountControls(session);
+mountDriveBack({ session, teleop, preview });
 const stopHardware = startHardwareStatus();
 
 // Inspection information dialog: driving stops while it is open.

@@ -34,7 +34,7 @@ export function createRobotStatus({ getMe }) {
       if (current.lock?.blocked && !current.active) {
         banner.classList.add('warn');
         banner.hidden = false;
-        banner.append(lockBanner(current.lock, me));
+        banner.append(lockBanner(current.lock, me, current.retrieve));
         $('new-button').disabled = true;
         return;
       }

@@ -53,7 +53,7 @@ function ensureStyle() {
 }
 
 // ---------- Dashboard banner ----------
-export function lockBanner(lock, me) {
+export function lockBanner(lock, me, retrieve) {
   ensureStyle();
   const fragment = document.createDocumentFragment();
   const i = lock.inspection;
@@ -72,6 +72,18 @@ export function lockBanner(lock, me) {
     actions.append(button);
   } else if (me?.role !== 'viewer') {
     actions.append(node('span', i ? `Ask ${i.operator} or an administrator to unlock.` : 'Ask an administrator to unlock.'));
+  }
+  if (retrieve?.mine || (retrieve?.available && !retrieve.active)) {
+    const drive = node('button', retrieve.mine ? 'Continue driving back' : 'Drive back with webcam', 'banner-recover');
+    drive.type = 'button';
+    drive.addEventListener('click', async () => {
+      drive.disabled = true;
+      try {
+        if (!retrieve.mine) await request('/api/robot/drive-back', { action: 'start' });
+        location.assign('/inspection');
+      } catch (e) { drive.disabled = false; drive.textContent = e.message; }
+    });
+    actions.prepend(drive);
   }
   fragment.append(actions);
   return fragment;
